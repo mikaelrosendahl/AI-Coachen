@@ -198,6 +198,15 @@ class AICoach:
             
             assistant_response = response.choices[0].message.content
             
+            # Spåra API-användning
+            from utils.api_usage_tracker import usage_tracker
+            api_usage = usage_tracker.track_usage(
+                response=response,
+                session_id=self.current_session.session_id,
+                mode=self.current_session.mode.value,
+                model=self.model
+            )
+            
             # Lägg till assistent-svar
             self.add_message(assistant_response, ConversationRole.ASSISTANT)
             

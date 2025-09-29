@@ -5,6 +5,7 @@ Streamlit-baserat gränssnitt för både personlig coaching och universitets AI-
 
 import streamlit as st
 import os
+import json
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -16,6 +17,7 @@ from core.ai_coach import AICoach, CoachingMode, create_ai_coach
 from core.personal_coach import PersonalCoach, PersonalGoalType, GoalStatus
 from core.university_coach import UniversityAICoach, AIUseCase, StakeholderType, UniversityProfile, AIImplementationPhase
 from utils.data_manager import DataManager
+from utils.api_usage_tracker import usage_tracker
 
 # Streamlit konfiguration
 st.set_page_config(
@@ -172,7 +174,7 @@ def show_coaching_interface():
     
     # Skapa tabs baserat på läge
     if st.session_state.current_mode == CoachingMode.PERSONAL:
-        tabs = st.tabs(["💬 Chat", "🎯 Mål", "📝 Reflektion", "📊 Progress"])
+        tabs = st.tabs(["💬 Chat", "🎯 Mål", "📝 Reflektion", "📊 Progress", "💳 API Usage"])
         
         with tabs[0]:
             show_chat_interface()
@@ -182,9 +184,11 @@ def show_coaching_interface():
             show_reflection_interface()
         with tabs[3]:
             show_personal_progress_interface()
+        with tabs[4]:
+            show_api_usage_interface()
             
     elif st.session_state.current_mode == CoachingMode.UNIVERSITY:
-        tabs = st.tabs(["💬 Chat", "🏗️ Projekt", "⚠️ Utmaningar", "📈 Status", "🗺️ Roadmap"])
+        tabs = st.tabs(["💬 Chat", "🏗️ Projekt", "⚠️ Utmaningar", "📈 Status", "🗺️ Roadmap", "💳 API Usage"])
         
         with tabs[0]:
             show_chat_interface()
@@ -196,9 +200,11 @@ def show_coaching_interface():
             show_university_status_interface()
         with tabs[4]:
             show_roadmap_interface()
+        with tabs[5]:
+            show_api_usage_interface()
             
     else:  # HYBRID
-        tabs = st.tabs(["💬 Chat", "🎯 Personliga Mål", "🏗️ AI-Projekt", "📊 Översikt"])
+        tabs = st.tabs(["💬 Chat", "🎯 Personliga Mål", "🏗️ AI-Projekt", "📊 Översikt", "💳 API Usage"])
         
         with tabs[0]:
             show_chat_interface()
@@ -208,6 +214,8 @@ def show_coaching_interface():
             show_university_projects_interface()
         with tabs[3]:
             show_hybrid_overview_interface()
+        with tabs[4]:
+            show_api_usage_interface()
 
 def show_chat_interface():
     """Visa chat-gränssnitt"""
@@ -641,6 +649,76 @@ def show_hybrid_overview_interface():
     Jag kan hjälpa dig utveckla ledarskapsförmågor för AI-transformation, 
     hantera stress vid förändring, och balansera innovation med ansvar.
     """)
+
+def show_api_usage_interface():
+    """Visa API-användning och kostnader"""
+    st.header("💳 API Användning & Kostnader")
+    
+    # Hämta användningssammanfattning
+    summary = usage_tracker.get_usage_summary()
+    
+    # Dagens användning
+    st.subheader("📅 Idag")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Requests", summary['today']['total_requests'])
+    with col2:
+        st.metric("Tokens", f"{summary['today']['total_tokens']:,}")
+    with col3:
+        st.metric("Kostnad (USD)", f"${summary['today']['total_cost_usd']:.3f}")
+    with col4:
+        st.metric("Kostnad (SEK)", f"{summary['today']['total_cost_sek']:.2f} kr")
+    
+    # Månadens användning
+    st.subheader("📊 Denna Månad")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Totala Requests", summary['month']['total_requests'])
+    with col2:
+        st.metric("Total Kostnad (USD)", f"${summary['month']['total_cost_usd']:.2f}")
+    with col3:
+        st.metric("Snitt per Request", f"${summary['month']['average_cost_per_request']:.4f}")
+    
+    # Rekommendationer
+    st.subheader("💡 Rekommendationer")
+    for rec in summary['recommendations']:
+        if rec.startswith("🚨"):
+            st.error(rec)
+        elif rec.startswith("💰"):
+            st.warning(rec)
+        elif rec.startswith("📊"):
+            st.info(rec)
+        else:
+            st.success(rec)
+    
+    # Användning per läge
+    if summary['today']['by_mode']:
+        st.subheader("📈 Användning per Coaching-läge (Idag)")
+        for mode, count in summary['today']['by_mode'].items():
+            st.write(f"**{mode.title()}**: {count} requests")
+    
+    # Detaljerad information
+    with st.expander("🔍 Detaljerad Information"):
+        st.write("**OpenAI Pricing (per 1000 tokens):**")
+        st.write("- GPT-4: $0.03 input, $0.06 output")
+        st.write("- GPT-4 Turbo: $0.01 input, $0.03 output")
+        
+        st.write("**Tips för att spara kostnader:**")
+        st.write("- Använd kortare meddelanden")
+        st.write("- Undvik upprepade frågor")
+        st.write("- Sätt mål och reflektion istället för bara chat")
+        
+    # Export-funktion
+    if st.button("📤 Exportera användningsdata"):
+        export_data = usage_tracker.export_usage_data()
+        st.download_button(
+            label="💾 Ladda ner användningsdata (JSON)",
+            data=json.dumps(export_data, indent=2, ensure_ascii=False),
+            file_name=f"ai_coach_usage_{datetime.now().strftime('%Y%m%d')}.json",
+            mime="application/json"
+        )
 
 if __name__ == "__main__":
     main()
