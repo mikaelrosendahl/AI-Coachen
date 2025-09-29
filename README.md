@@ -158,6 +158,58 @@ python test_ai_coach.py
 ```
 Testar alla moduler (vissa tester kräver API-nyckel).
 
+## 🧠 Modellträning och Anpassning
+
+AI-Coachen kan förbättras och anpassas genom olika träningsmetoder för att bättre passa dina specifika behov:
+
+### 🎯 Tillgängliga Träningsmetoder
+
+1. **🔧 Fine-tuning (OpenAI)**
+   - Snabbt sätt att anpassa GPT-4 för coaching
+   - Kräver 50-100 kvalitetsexempel
+   - Kostnad: ~$50-200 för träning
+
+2. **🏠 Lokal Modellträning**
+   - Full kontroll med LoRA fine-tuning
+   - Inga löpande API-kostnader
+   - Kräver GPU och mer data
+
+3. **📚 RAG (Kunskapsförstärkning)**
+   - Förbättrar svar med egen kunskapsbas
+   - Lätt att uppdatera och underhålla
+   - Mest kostnadseffektiv
+
+### 🚀 Kom igång med träning
+
+```bash
+# 1. Samla träningsdata från dina sessioner
+python utils/export_training_data.py
+
+# 2. Välj träningsmetod:
+
+# För Fine-tuning:
+python utils/fine_tune_openai.py --data training_data.jsonl
+
+# För lokal träning:
+python utils/train_local_model.py --method lora
+
+# För RAG-implementation:
+python utils/setup_rag.py --knowledge_base your_docs/
+```
+
+### 📊 Datainsamling
+
+- Automatisk logging av alla coaching-sessioner
+- Användarfeedback och kvalitetsbedömning
+- Export i standardformat för träning
+- Etiska riktlinjer och dataskydd
+
+### 📖 Träningsdokumentation
+
+- [**MODELLTRÄNING.md**](docs/MODELLTRANING.md) - Komplett guide för alla träningsmetoder
+- [**IMPLEMENTATION_GUIDE.md**](docs/IMPLEMENTATION_GUIDE.md) - Steg-för-steg implementering
+- [**DATAINSAMLING.md**](docs/DATAINSAMLING.md) - Datainsamling och kvalitetskontroll
+
 ## 📚 Dokumentation
 
 - [**ANVÄNDARGUIDE.md**](ANVÄNDARGUIDE.md) - Komplett användarmanual
