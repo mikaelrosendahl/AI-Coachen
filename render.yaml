@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ai-coachen
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run main.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: OPENAI_API_KEY
+        sync: false  # This will be set manually in Render dashboard
+    autoDeploy: true
+    repo: https://github.com/mikaelrosendahl/AI-Coachen
+    branch: main

@@ -12,6 +12,9 @@ from dotenv import load_dotenv
 # Ladda environment variables
 load_dotenv()
 
+# Kontrollera om vi kör i molnmiljö (Render)
+IS_CLOUD_DEPLOYMENT = os.getenv('RENDER') is not None or os.getenv('PORT') is not None
+
 # Importera våra moduler
 from core.ai_coach import AICoach, CoachingMode, create_ai_coach
 from core.personal_coach import PersonalCoach, PersonalGoalType, GoalStatus
