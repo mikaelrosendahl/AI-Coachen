@@ -46,7 +46,7 @@ chmod +x start_coach.sh
 
 ```bash
 # 1. Klona repository
-git clone https://github.com/[ditt-användarnamn]/AI-Coachen.git
+git clone https://github.com/mikaelrosendahl/AI-Coachen.git
 cd AI-Coachen
 
 # 2. Skapa virtual environment

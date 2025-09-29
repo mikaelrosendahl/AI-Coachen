@@ -18,7 +18,7 @@
 Efter att du skapat repository på GitHub, kopiera kommandona som visas under "…or push an existing repository from the command line":
 
 ```bash
-git remote add origin https://github.com/[ditt-användarnamn]/AI-Coachen.git
+git remote add origin https://github.com/mikaelrosendahl/AI-Coachen.git
 git branch -M main
 git push -u origin main
 ```
@@ -27,7 +27,7 @@ git push -u origin main
 
 ```powershell
 # Lägg till GitHub som remote origin
-git remote add origin https://github.com/[ditt-användarnamn]/AI-Coachen.git
+git remote add origin https://github.com/mikaelrosendahl/AI-Coachen.git
 
 # Byt till main branch (modern standard)
 git branch -M main  
