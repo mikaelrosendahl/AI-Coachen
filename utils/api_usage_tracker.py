@@ -81,7 +81,7 @@ class APIUsageTracker:
     def calculate_cost(self, model: str, prompt_tokens: int, completion_tokens: int) -> float:
         """Beräkna kostnad för API-anrop"""
         if model not in self.pricing:
-            model = "gpt-4"  # Default fallback
+            model = "gpt-3.5-turbo"  # Default fallback
         
         prices = self.pricing[model]
         
@@ -90,7 +90,7 @@ class APIUsageTracker:
         
         return input_cost + output_cost
     
-    def track_usage(self, response, session_id: str, mode: str, model: str = "gpt-4"):
+    def track_usage(self, response, session_id: str, mode: str, model: str = "gpt-3.5-turbo"):
         """Spåra en API-användning"""
         if hasattr(response, 'usage') and response.usage:
             usage = response.usage

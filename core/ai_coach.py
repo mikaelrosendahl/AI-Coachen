@@ -39,7 +39,7 @@ class CoachingSession:
 class AICoach:
     """Huvudklass för AI-coachen med dubbla roller"""
     
-    def __init__(self, api_key: str, model: str = "gpt-4"):
+    def __init__(self, api_key: str, model: str = "gpt-3.5-turbo"):
         self.client = openai.OpenAI(api_key=api_key)
         self.model = model
         self.encoding = tiktoken.encoding_for_model(model)
@@ -269,7 +269,7 @@ class AICoach:
         return summary
 
 # Factory function för enkel instansiering
-def create_ai_coach(api_key: str = None, model: str = "gpt-4") -> AICoach:
+def create_ai_coach(api_key: str = None, model: str = "gpt-3.5-turbo") -> AICoach:
     """Skapa AI-coach instans"""
     if not api_key:
         api_key = os.getenv("OPENAI_API_KEY")

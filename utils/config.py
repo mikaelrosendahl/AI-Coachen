@@ -33,7 +33,7 @@ class Config:
     LOG_FILE = os.getenv("LOG_FILE", "logs/coach.log")
     
     # AI Model settings
-    AI_MODEL = os.getenv("AI_MODEL", "gpt-4")
+    AI_MODEL = os.getenv("AI_MODEL", "gpt-3.5-turbo")
     MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4000"))
     TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
     
