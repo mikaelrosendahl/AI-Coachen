@@ -411,7 +411,7 @@ AI_EXPERT_KNOWLEDGE = {
 ### RAG AI Expert - Framgångsrikt Implementerad! 🎉
 
 **Datum**: 2025-10-18  
-**Status**: Live i produktion på https://ai-coachen.onrender.com
+**Status**: Live i produktion på https://ai-coachen.online
 
 #### Vad som implementerats:
 - ✅ **8 AI-kunskapsområden** med 25+ detaljerade experti-dokument
@@ -609,8 +609,8 @@ class PremiumManager:
                 'quantity': 1,
             }],
             mode='subscription',
-            success_url='https://ai-coachen.onrender.com/success',
-            cancel_url='https://ai-coachen.onrender.com/cancel',
+            success_url='https://ai-coachen.online/success',
+            cancel_url='https://ai-coachen.online/cancel',
         )
         return session.url
 ```
@@ -723,7 +723,7 @@ VECKA 4: PayPal donate-knapp (1 request)
 **BÖRJA MED AFFILIATE-LÄNKAR IDAG - kostar 0 requests, bara textändringar i befintlig kod. Kan generera intäkter inom veckor!**
 
 ### Hur du testar AI-expertis:
-1. Gå till https://ai-coachen.onrender.com
+1. Gå till https://ai-coachen.online
 2. Ställ AI-relaterade frågor som:
    - "Vad är machine learning?"
    - "Hur implementerar jag MLOps?"

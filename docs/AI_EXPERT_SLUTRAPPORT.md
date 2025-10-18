@@ -17,7 +17,7 @@
 - **AI-expertis**: 8 kunskapsområden med 25+ detaljerade dokument
 - **0 extra API-kostnader**: Lokala embeddings och smart caching
 - **Coaching-ton bevarad**: Teknisk expertis integrerad med personlig approach
-- **Live deployment**: Tillgänglig på https://ai-coachen.onrender.com
+- **Live deployment**: Tillgänglig på https://ai-coachen.online
 - **Seamless integration**: Fungerar transparent med befintliga coaching-modes
 
 ---
@@ -134,7 +134,7 @@ def detect_expertise_level(self, user_query: str) -> AIExpertiseLevel:
 ```
 
 ### Manuella Tester (Live-miljö)
-**Test på https://ai-coachen.onrender.com**:
+**Test på https://ai-coachen.online**:
 
 #### Grundläggande AI-frågor:
 - **Fråga**: "Vad är machine learning?"
@@ -234,7 +234,7 @@ def detect_expertise_level(self, user_query: str) -> AIExpertiseLevel:
 | 0 extra API-kostnader | ✅ UPPFYLLT | Lokala embeddings, smart caching |
 | Behåll coaching-ton | ✅ UPPFYLLT | Coaching-first approach bibehållen |
 | Transparent aktivering | ✅ UPPFYLLT | Automatisk för AI-frågor |
-| Live deployment | ✅ UPPFYLLT | https://ai-coachen.onrender.com |
+| Live deployment | ✅ UPPFYLLT | https://ai-coachen.online |
 | Dokumentation | ✅ ÖVER-LEVERERAT | Omfattande tech- och user-docs |
 
 ### Nyckelmetriker:
@@ -279,7 +279,7 @@ def detect_expertise_level(self, user_query: str) -> AIExpertiseLevel:
 - Normal frågor: **0 förändring** - original persona bevarad
 - Coaching-ton: **Bibehållen** i alla AI-enhanced responses
 
-### Live Test Recommendations på https://ai-coachen.onrender.com:
+### Live Test Recommendations på https://ai-coachen.online:
 - ✅ "Vad är machine learning?" → Basic AI-expertis
 - ✅ "Hur implementerar jag MLOps?" → Intermediate/Advanced AI-expertis  
 - ✅ "AI transformation roadmap för universitet?" → Expert AI-expertis
@@ -294,7 +294,7 @@ AI-Coachen har framgångsrikt förvandlats till en AI-expert som:
 - **Levererar** djup teknisk expertis
 - **Behåller** sin coaching-själ och personliga approach
 - **Kostar** mindre än 25% extra i API-requests
-- **Fungerar** live på https://ai-coachen.onrender.com
+- **Fungerar** live på https://ai-coachen.online
 
 ---
 

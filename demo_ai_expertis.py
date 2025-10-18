@@ -171,7 +171,7 @@ def main():
     print("🚀 AI-COACHEN AI EXPERTIS DEMONSTRATION")
     print("=" * 60)
     print("Visar den nya AI-expertis funktionaliteten som implementerats")
-    print("Live på: https://ai-coachen.onrender.com")
+    print("Live på: https://ai-coachen.online")
     print("=" * 60)
     
     # Kör alla demonstrationer
@@ -188,7 +188,7 @@ def main():
     print("✅ Expertis-nivåer: Automatisk detektering")
     print("✅ Coaching-integration: Seamless AI-expertis enhancement")
     print("\n🎯 AI-Coachen är nu en fullfjädrad AI-expert!")
-    print("🌐 Testa live: https://ai-coachen.onrender.com")
+    print("🌐 Testa live: https://ai-coachen.online")
     print("\n📋 TESTFÖRSLAG:")
     print("   • 'Vad är machine learning?'")
     print("   • 'Hur implementerar jag MLOps?'")

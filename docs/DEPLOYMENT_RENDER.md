@@ -92,7 +92,7 @@ STREAMLIT_BROWSER_GATHER_USAGE_STATS = false
    - Deployment tar vanligtvis 3-5 minuter
 
 3. **Testa applikationen**
-   - När deployment är klar får du en URL (ex: `https://ai-coachen.onrender.com`)
+   - När deployment är klar får du en URL (ex: `https://ai-coachen.online`)
    - Klicka på länken för att testa
 
 ## 🔧 Render-specifik Konfiguration
@@ -271,4 +271,4 @@ st.write(f"OPENAI_API_KEY set: {bool(os.getenv('OPENAI_API_KEY'))}")
 
 **🎉 Grattis! AI-Coachen är nu live på Render!** 
 
-URL: `https://ditt-service-namn.onrender.com`
+URL: `https://ditt-service-namn.onrender.com`  # Behåll onrender exempel men använd ny custom domain för produktion, t.ex. https://ai-coachen.online

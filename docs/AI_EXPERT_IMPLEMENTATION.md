@@ -171,7 +171,7 @@ Integration layer som bestämmer när AI-expertis ska användas och hur den ska 
 - ✅ Integration layer implementerat (utils/ai_expert_integration.py)
 - ✅ AI-coach uppdaterad för AI-expertis
 - ✅ Grundläggande testning genomförd
-- ✅ Live-deployment testad på https://ai-coachen.onrender.com
+- ✅ Live-deployment testad på https://ai-coachen.online
 
 ### Implementation Status: ✅ KLAR
 **Alla komponenter implementerade och deployade till produktion**
@@ -198,7 +198,7 @@ Integration layer som bestämmer när AI-expertis ska användas och hur den ska 
    - Fungerar för både personal och university modes
 
 5. ✅ **Live-deployment**
-   - Tillgänglig på https://ai-coachen.onrender.com
+   - Tillgänglig på https://ai-coachen.online
    - Redo för användartestning
    - Alla AI-expertis funktioner aktiva
 
