@@ -232,8 +232,11 @@ class AICoach:
                 model=self.model
             )
             
-            # Lägg till assistent-svar
-            self.add_message(assistant_response, ConversationRole.ASSISTANT)
+            # NYTT: Lägg till affiliate-länkar baserat på svarinnehåll
+            enhanced_response = self._add_affiliate_suggestions(assistant_response, user_message)
+            
+            # Lägg till förbättrat assistent-svar
+            self.add_message(enhanced_response, ConversationRole.ASSISTANT)
             
             # Generera metadata
             metadata = {
@@ -244,7 +247,7 @@ class AICoach:
                 "tokens_used": response.usage.total_tokens if response.usage else None
             }
             
-            return assistant_response, metadata
+            return enhanced_response, metadata
             
         except Exception as e:
             self.logger.error(f"Error getting response: {str(e)}")
@@ -292,6 +295,79 @@ class AICoach:
         self.current_session = None
         
         return summary
+    
+    def _add_affiliate_suggestions(self, ai_response: str, user_message: str) -> str:
+        """Lägg till relevanta affiliate-länkar baserat på AI-svar och användarfråga"""
+        
+        # Konvertera till lowercase för nyckelordsmatching
+        response_lower = ai_response.lower()
+        user_lower = user_message.lower()
+        combined_text = (response_lower + " " + user_lower).strip()
+        
+        affiliate_suggestions = []
+        
+        # 1. AI & Machine Learning Kurser (Coursera)
+        ai_keywords = ["machine learning", "ai", "artificial intelligence", "neural network", 
+                      "deep learning", "python", "data science", "tensorflow", "pytorch", "kurs", "utbildning"]
+        if any(keyword in combined_text for keyword in ai_keywords):
+            affiliate_suggestions.append({
+                "text": "🎓 **Rekommenderad AI-kurs**: [Machine Learning Specialization på Coursera](https://www.coursera.org/specializations/machine-learning-introduction?irclickid=xGxzRaW4%3AxyPW4Q1a%3A1V1TjUkHzbp0k4ywuzs0&irgwc=1&utm_medium=partners&utm_source=impact&utm_campaign=3294490&utm_content=b2c) - Starta din AI-resa med Andrew Ng!",
+                "category": "education"
+            })
+        
+        # 2. Böcker (Amazon Associates) 
+        book_keywords = ["bok", "läsa", "studera", "litteratur", "författare", "research"]
+        if any(keyword in combined_text for keyword in book_keywords):
+            affiliate_suggestions.append({
+                "text": "📚 **Rekommenderad bok**: [Hands-On Machine Learning på Amazon](https://amzn.to/3AICoachen) - Praktisk guide för AI-implementering",
+                "category": "books"
+            })
+        
+        # 3. Produktivitetsverktyg (Notion, ClickUp)
+        productivity_keywords = ["produktivitet", "planering", "organisation", "projekt", "mål", "tracking", "notes"]
+        if any(keyword in combined_text for keyword in productivity_keywords):
+            affiliate_suggestions.append({
+                "text": "⚡ **Produktivitetsverktyg**: [Notion Pro](https://affiliate.notion.so/aicoachen) - Perfekt för att organisera dina AI-studier och coaching-mål (20% rabatt första året!)",
+                "category": "productivity"
+            })
+        
+        # 4. AI-verktyg och Premium Services
+        ai_tools_keywords = ["chatgpt", "claude", "midjourney", "ai tool", "automation", "premium"]
+        if any(keyword in combined_text for keyword in ai_tools_keywords):
+            affiliate_suggestions.append({
+                "text": "🤖 **AI-verktyg**: [ChatGPT Plus](https://openai.com/chatgpt/plus/?ref=aicoachen) - Upplev kraften av GPT-4 för dina AI-projekt",
+                "category": "ai_tools"
+            })
+        
+        # 5. Coaching & Certifiering
+        coaching_keywords = ["coaching", "certifiering", "utveckling", "karriär", "ledarskap", "mentor"]
+        if any(keyword in combined_text for keyword in coaching_keywords):
+            affiliate_suggestions.append({
+                "text": "🎯 **Coaching-certifiering**: [ICF Coaching Certification](https://coachfederation.org/?affiliate=aicoachen) - Utveckla dina coaching-färdigheter professionellt",
+                "category": "coaching"
+            })
+        
+        # 6. Cloud & Development Tools
+        tech_keywords = ["cloud", "aws", "azure", "deployment", "development", "kod", "programming"]
+        if any(keyword in combined_text for keyword in tech_keywords):
+            affiliate_suggestions.append({
+                "text": "☁️ **Cloud-utveckling**: [AWS Training Courses](https://aws.amazon.com/training/?trk=affiliate_aicoachen) - Lär dig deploiera AI i molnet",
+                "category": "cloud"
+            })
+        
+        # Lägg till max 2 affiliate-förslag för att inte överväldiga
+        if affiliate_suggestions:
+            selected_suggestions = affiliate_suggestions[:2]  # Max 2 förslag
+            
+            affiliate_text = "\n\n---\n\n💡 **Rekommenderade resurser baserat på vårt samtal:**\n\n"
+            for suggestion in selected_suggestions:
+                affiliate_text += suggestion["text"] + "\n\n"
+            
+            affiliate_text += "*Som AI-Coach rekommenderar jag endast verktyg som verkligen kan hjälpa din utveckling. Genom att använda dessa länkar stödjer du också utvecklingen av AI-Coachen.*"
+            
+            return ai_response + affiliate_text
+        
+        return ai_response
 
 # Factory function för enkel instansiering
 def create_ai_coach(api_key: str = None, model: str = "gpt-3.5-turbo") -> AICoach:
