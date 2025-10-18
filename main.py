@@ -998,7 +998,8 @@ def show_blog_post_card(post, featured=False):
         st.markdown("</div>", unsafe_allow_html=True)
     
     # Visa fullständigt inlägg om valt
-    if st.session_state.get('selected_blog_post', {}).get('id') == post['id']:
+    selected_post = st.session_state.get('selected_blog_post')
+    if selected_post and selected_post.get('id') == post['id']:
         with st.expander("📖 Fullständigt inlägg", expanded=True):
             st.markdown(f"# {post['title']}")
             # Hantera datetime för PostgreSQL
