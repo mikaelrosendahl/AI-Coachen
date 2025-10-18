@@ -1,5 +1,6 @@
 """
 Data Manager - Hantering av persistent data för AI-coachen
+Stöder både SQLite (lokal) och PostgreSQL (production)
 """
 
 import sqlite3
@@ -9,6 +10,14 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 import logging
 
+# PostgreSQL support
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
+
 class DataManager:
     """Hanterar datalagring och hämtning för AI-coachen"""
     
@@ -16,16 +25,137 @@ class DataManager:
         self.db_path = db_path
         self.logger = logging.getLogger(__name__)
         
-        # Skapa data-mapp om den inte finns
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        # Bestäm databas-typ baserat på environment
+        self.database_url = os.getenv('DATABASE_URL')
+        self.use_postgres = bool(self.database_url and POSTGRES_AVAILABLE)
+        
+        if self.use_postgres:
+            self.logger.info("Using PostgreSQL database")
+        else:
+            self.logger.info("Using SQLite database")
+            # Skapa data-mapp om den inte finns
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
         
         # Initialisera databas
         self._init_database()
     
+    def _get_connection(self):
+        """Få databasanslutning baserat på konfiguration"""
+        if self.use_postgres:
+            return psycopg2.connect(self.database_url, cursor_factory=RealDictCursor)
+        else:
+            return sqlite3.connect(self.db_path)
+    
     def _init_database(self):
         """Initialisera databas-schema"""
+        if self.use_postgres:
+            self._init_postgres_schema()
+        else:
+            self._init_sqlite_schema()
+    
+    def _init_postgres_schema(self):
+        """Initialisera PostgreSQL schema"""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Blog posts tabell
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS blog_posts (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE NOT NULL,
+                    content TEXT NOT NULL,
+                    excerpt TEXT,
+                    author VARCHAR(100) DEFAULT 'AI-Coach',
+                    category VARCHAR(50) DEFAULT 'coaching',
+                    tags TEXT[],
+                    published BOOLEAN DEFAULT FALSE,
+                    featured BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            # Blog comments tabell
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS blog_comments (
+                    id SERIAL PRIMARY KEY,
+                    post_id INTEGER REFERENCES blog_posts(id) ON DELETE CASCADE,
+                    author_name VARCHAR(100) NOT NULL,
+                    author_email VARCHAR(255),
+                    content TEXT NOT NULL,
+                    approved BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            # Coaching sessions tabell
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS coaching_sessions (
+                    id VARCHAR(255) PRIMARY KEY,
+                    user_id VARCHAR(255) NOT NULL,
+                    mode VARCHAR(50) NOT NULL,
+                    start_time TIMESTAMP NOT NULL,
+                    end_time TIMESTAMP,
+                    message_count INTEGER DEFAULT 0,
+                    context TEXT,
+                    goals TEXT,
+                    progress_notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            # Messages tabell
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS messages (
+                    id SERIAL PRIMARY KEY,
+                    session_id VARCHAR(255) NOT NULL REFERENCES coaching_sessions(id),
+                    role VARCHAR(20) NOT NULL,
+                    content TEXT NOT NULL,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    tokens_used INTEGER DEFAULT 0,
+                    cost_usd DECIMAL(10,6) DEFAULT 0.0
+                )
+            """)
+            
+            conn.commit()
+    
+    def _init_sqlite_schema(self):
+        """Initialisera SQLite schema"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
+            
+            # Blog posts tabell
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS blog_posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    slug TEXT UNIQUE NOT NULL,
+                    content TEXT NOT NULL,
+                    excerpt TEXT,
+                    author TEXT DEFAULT 'AI-Coach',
+                    category TEXT DEFAULT 'coaching',
+                    tags TEXT,
+                    published BOOLEAN DEFAULT 0,
+                    featured BOOLEAN DEFAULT 0,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            # Blog comments tabell
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS blog_comments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    post_id INTEGER,
+                    author_name TEXT NOT NULL,
+                    author_email TEXT,
+                    content TEXT NOT NULL,
+                    approved BOOLEAN DEFAULT 0,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (post_id) REFERENCES blog_posts (id)
+                )
+            """)
             
             # Coaching sessions tabell
             cursor.execute("""
@@ -447,3 +577,290 @@ class DataManager:
         except Exception as e:
             self.logger.error(f"Error backing up database: {str(e)}")
             return False
+    
+    # =========================
+    # BLOG FUNCTIONALITY
+    # =========================
+    
+    def create_blog_post(self, title: str, content: str, category: str = "coaching", 
+                        tags: List[str] = None, published: bool = False, 
+                        featured: bool = False, excerpt: str = None) -> Optional[int]:
+        """Skapa nytt blogginlägg"""
+        try:
+            # Generera slug från title
+            import re
+            slug = re.sub(r'[^\w\s-]', '', title.lower())
+            slug = re.sub(r'[-\s]+', '-', slug).strip('-')
+            
+            # Generera excerpt om inte angiven
+            if not excerpt and len(content) > 200:
+                excerpt = content[:200] + "..."
+            
+            if self.use_postgres:
+                with self._get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        INSERT INTO blog_posts (title, slug, content, excerpt, category, tags, published, featured)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id
+                    """, (title, slug, content, excerpt, category, tags or [], published, featured))
+                    
+                    post_id = cursor.fetchone()['id']
+                    conn.commit()
+                    return post_id
+            else:
+                with self._get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        INSERT INTO blog_posts (title, slug, content, excerpt, category, tags, published, featured)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (title, slug, content, excerpt, category, json.dumps(tags or []), published, featured))
+                    
+                    post_id = cursor.lastrowid
+                    conn.commit()
+                    return post_id
+                    
+        except Exception as e:
+            self.logger.error(f"Error creating blog post: {str(e)}")
+            return None
+    
+    def get_blog_posts(self, published_only: bool = True, limit: int = None, 
+                      category: str = None) -> List[Dict]:
+        """Hämta blogginlägg"""
+        try:
+            where_conditions = []
+            params = []
+            
+            if published_only:
+                where_conditions.append("published = %s" if self.use_postgres else "published = ?")
+                params.append(True)
+            
+            if category:
+                where_conditions.append("category = %s" if self.use_postgres else "category = ?")
+                params.append(category)
+            
+            where_clause = ""
+            if where_conditions:
+                where_clause = "WHERE " + " AND ".join(where_conditions)
+            
+            order_clause = "ORDER BY created_at DESC"
+            limit_clause = ""
+            if limit:
+                limit_clause = f"LIMIT {limit}"
+            
+            query = f"""
+                SELECT id, title, slug, content, excerpt, author, category, tags, 
+                       published, featured, created_at, updated_at
+                FROM blog_posts 
+                {where_clause} 
+                {order_clause} 
+                {limit_clause}
+            """
+            
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                
+                if self.use_postgres:
+                    posts = [dict(row) for row in cursor.fetchall()]
+                else:
+                    rows = cursor.fetchall()
+                    columns = [desc[0] for desc in cursor.description]
+                    posts = [dict(zip(columns, row)) for row in rows]
+                
+                # Parse tags for SQLite
+                if not self.use_postgres:
+                    for post in posts:
+                        if post.get('tags'):
+                            try:
+                                post['tags'] = json.loads(post['tags'])
+                            except:
+                                post['tags'] = []
+                        else:
+                            post['tags'] = []
+                
+                return posts
+                
+        except Exception as e:
+            self.logger.error(f"Error getting blog posts: {str(e)}")
+            return []
+    
+    def get_blog_post_by_slug(self, slug: str) -> Optional[Dict]:
+        """Hämta blogginlägg via slug"""
+        try:
+            query = """
+                SELECT id, title, slug, content, excerpt, author, category, tags, 
+                       published, featured, created_at, updated_at
+                FROM blog_posts 
+                WHERE slug = %s
+            """ if self.use_postgres else """
+                SELECT id, title, slug, content, excerpt, author, category, tags, 
+                       published, featured, created_at, updated_at
+                FROM blog_posts 
+                WHERE slug = ?
+            """
+            
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, (slug,))
+                
+                if self.use_postgres:
+                    row = cursor.fetchone()
+                    if row:
+                        return dict(row)
+                else:
+                    row = cursor.fetchone()
+                    if row:
+                        columns = [desc[0] for desc in cursor.description]
+                        post = dict(zip(columns, row))
+                        
+                        # Parse tags for SQLite
+                        if post.get('tags'):
+                            try:
+                                post['tags'] = json.loads(post['tags'])
+                            except:
+                                post['tags'] = []
+                        else:
+                            post['tags'] = []
+                        
+                        return post
+                
+                return None
+                
+        except Exception as e:
+            self.logger.error(f"Error getting blog post by slug: {str(e)}")
+            return None
+    
+    def update_blog_post(self, post_id: int, **kwargs) -> bool:
+        """Uppdatera blogginlägg"""
+        try:
+            # Tillåtna fält att uppdatera
+            allowed_fields = ['title', 'content', 'excerpt', 'category', 'tags', 'published', 'featured']
+            
+            update_fields = []
+            values = []
+            
+            for field, value in kwargs.items():
+                if field in allowed_fields:
+                    if field == 'tags' and not self.use_postgres:
+                        value = json.dumps(value) if isinstance(value, list) else value
+                    
+                    update_fields.append(f"{field} = %s" if self.use_postgres else f"{field} = ?")
+                    values.append(value)
+            
+            if not update_fields:
+                return False
+            
+            # Lägg till updated_at
+            update_fields.append("updated_at = %s" if self.use_postgres else "updated_at = CURRENT_TIMESTAMP")
+            if self.use_postgres:
+                values.append(datetime.now())
+            
+            values.append(post_id)
+            
+            query = f"""
+                UPDATE blog_posts 
+                SET {', '.join(update_fields)}
+                WHERE id = %s
+            """ if self.use_postgres else f"""
+                UPDATE blog_posts 
+                SET {', '.join(update_fields)}
+                WHERE id = ?
+            """
+            
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, values)
+                conn.commit()
+                return cursor.rowcount > 0
+                
+        except Exception as e:
+            self.logger.error(f"Error updating blog post: {str(e)}")
+            return False
+    
+    def delete_blog_post(self, post_id: int) -> bool:
+        """Ta bort blogginlägg"""
+        try:
+            query = "DELETE FROM blog_posts WHERE id = %s" if self.use_postgres else "DELETE FROM blog_posts WHERE id = ?"
+            
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, (post_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+                
+        except Exception as e:
+            self.logger.error(f"Error deleting blog post: {str(e)}")
+            return False
+    
+    def get_blog_categories(self) -> List[str]:
+        """Hämta alla blog-kategorier"""
+        try:
+            query = "SELECT DISTINCT category FROM blog_posts WHERE published = %s" if self.use_postgres else "SELECT DISTINCT category FROM blog_posts WHERE published = ?"
+            
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, (True,))
+                
+                if self.use_postgres:
+                    return [row['category'] for row in cursor.fetchall()]
+                else:
+                    return [row[0] for row in cursor.fetchall()]
+                
+        except Exception as e:
+            self.logger.error(f"Error getting blog categories: {str(e)}")
+            return []
+    
+    def search_blog_posts(self, search_term: str, published_only: bool = True) -> List[Dict]:
+        """Sök i blogginlägg"""
+        try:
+            where_conditions = []
+            params = []
+            
+            # Sök i title och content
+            if self.use_postgres:
+                where_conditions.append("(title ILIKE %s OR content ILIKE %s)")
+                params.extend([f"%{search_term}%", f"%{search_term}%"])
+            else:
+                where_conditions.append("(title LIKE ? OR content LIKE ?)")
+                params.extend([f"%{search_term}%", f"%{search_term}%"])
+            
+            if published_only:
+                where_conditions.append("published = %s" if self.use_postgres else "published = ?")
+                params.append(True)
+            
+            where_clause = "WHERE " + " AND ".join(where_conditions)
+            
+            query = f"""
+                SELECT id, title, slug, excerpt, author, category, tags, created_at
+                FROM blog_posts 
+                {where_clause}
+                ORDER BY created_at DESC
+            """
+            
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                
+                if self.use_postgres:
+                    posts = [dict(row) for row in cursor.fetchall()]
+                else:
+                    rows = cursor.fetchall()
+                    columns = [desc[0] for desc in cursor.description]
+                    posts = [dict(zip(columns, row)) for row in rows]
+                    
+                    # Parse tags for SQLite
+                    for post in posts:
+                        if post.get('tags'):
+                            try:
+                                post['tags'] = json.loads(post['tags'])
+                            except:
+                                post['tags'] = []
+                        else:
+                            post['tags'] = []
+                
+                return posts
+                
+        except Exception as e:
+            self.logger.error(f"Error searching blog posts: {str(e)}")
+            return []

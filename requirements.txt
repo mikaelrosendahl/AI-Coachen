@@ -7,6 +7,9 @@ pydantic>=2.0.0
 python-dotenv>=1.0.0
 tiktoken>=0.5.0
 
+# Database support
+psycopg2-binary>=2.9.0  # PostgreSQL adapter för Python
+
 # Additional production dependencies
 watchdog>=3.0.0  # För filövervakning
 packaging>=21.0  # För kompatibilitet

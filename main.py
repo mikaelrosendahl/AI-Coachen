@@ -53,6 +53,9 @@ if 'current_mode' not in st.session_state:
 if 'session_started' not in st.session_state:
     st.session_state.session_started = False
 
+if 'selected_blog_post' not in st.session_state:
+    st.session_state.selected_blog_post = None
+
 def main():
     """Huvudfunktion för applikationen"""
     
@@ -106,13 +109,28 @@ def main():
     
     # Main content area
     if not st.session_state.session_started:
-        show_welcome_page()
+        show_main_navigation()
     else:
         show_coaching_interface()
 
-def show_welcome_page():
-    """Visa välkomstskärm"""
-    st.title("Välkommen till AI-Coachen! 🤖🎓")
+def show_main_navigation():
+    """Visa huvudnavigation med blog och coaching"""
+    st.title("AI-Coachen 🤖🎓")
+    
+    # Navigation tabs
+    main_tabs = st.tabs(["🏠 Hem", "📰 Blog", "🤖 Starta Coaching"])
+    
+    with main_tabs[0]:
+        show_welcome_content()
+    
+    with main_tabs[1]:
+        show_blog_interface()
+        
+    with main_tabs[2]:
+        show_coaching_start()
+
+def show_welcome_content():
+    """Visa välkomstinnehåll"""
     
     col1, col2 = st.columns(2)
     
@@ -722,6 +740,296 @@ def show_api_usage_interface():
             file_name=f"ai_coach_usage_{datetime.now().strftime('%Y%m%d')}.json",
             mime="application/json"
         )
+
+def show_coaching_start():
+    """Visa coaching-startskärm"""
+    st.header("🚀 Starta din Coaching-resa")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🧠 Personlig Coach")
+        st.markdown("""
+        **Utveckla dig själv med AI-hjälp:**
+        - Sätt och följ upp personliga mål
+        - Få motiverande coaching och feedback
+        - Reflektion och progress tracking  
+        - Anpassad utvecklingsplan
+        """)
+        
+        if st.button("Starta Personlig Coaching", type="primary", key="personal_start"):
+            st.session_state.current_mode = CoachingMode.PERSONAL
+            user_id = "user_1"
+            session_id = st.session_state.ai_coach.start_session(user_id, CoachingMode.PERSONAL)
+            st.session_state.session_started = True
+            st.session_state.session_id = session_id
+            st.rerun()
+    
+    with col2:
+        st.subheader("🎓 Universitets AI-Coach")
+        st.markdown("""
+        **Implementera AI på ditt universitet:**
+        - Strategisk planering för AI-adoption
+        - Forskningsintegration och metodologi
+        - Stakeholder management och training
+        - Etiska riktlinjer och compliance
+        """)
+        
+        if st.button("Starta Universitets-Coaching", type="primary", key="university_start"):
+            st.session_state.current_mode = CoachingMode.UNIVERSITY
+            user_id = "user_1"  
+            session_id = st.session_state.ai_coach.start_session(user_id, CoachingMode.UNIVERSITY)
+            st.session_state.session_started = True
+            st.session_state.session_id = session_id
+            st.rerun()
+
+def show_blog_interface():
+    """Visa blog-gränssnitt"""
+    st.header("📰 AI-Coaching Blog")
+    
+    # Admin-läge för att skapa inlägg (enkel löning)
+    admin_mode = st.sidebar.checkbox("🔧 Admin-läge", help="Aktivera för att skapa och redigera blogginlägg")
+    
+    if admin_mode:
+        show_blog_admin()
+    else:
+        show_blog_public()
+
+def show_blog_admin():
+    """Visa admin-gränssnitt för blog"""
+    st.subheader("🔧 Blog Administration")
+    
+    admin_tabs = st.tabs(["📝 Skapa Inlägg", "📋 Hantera Inlägg"])
+    
+    with admin_tabs[0]:
+        st.subheader("Skapa nytt blogginlägg")
+        
+        with st.form("create_blog_post"):
+            title = st.text_input("Titel", placeholder="Hur AI kan transformera din coaching-resa")
+            
+            category = st.selectbox("Kategori", [
+                "coaching", "ai-tips", "personlig-utveckling", 
+                "universitet", "teknologi", "framtid"
+            ])
+            
+            tags_input = st.text_input("Taggar (kommaseparerade)", 
+                                     placeholder="AI, coaching, personlig utveckling")
+            tags = [tag.strip() for tag in tags_input.split(",") if tag.strip()]
+            
+            excerpt = st.text_area("Sammanfattning (valfritt)", 
+                                 placeholder="En kort beskrivning av inlägget...")
+            
+            content = st.text_area("Innehåll", height=300,
+                                 placeholder="Skriv ditt blogginlägg här...")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                published = st.checkbox("Publicera direkt")
+            with col2:
+                featured = st.checkbox("Utvalt inlägg")
+            with col3:
+                ai_assist = st.checkbox("🤖 AI-assistance")
+            
+            if st.form_submit_button("📝 Skapa Inlägg"):
+                if title and content:
+                    # AI-assistance för innehåll
+                    if ai_assist and content:
+                        with st.spinner("🤖 Förbättrar innehåll med AI..."):
+                            try:
+                                enhanced_content = enhance_blog_content_with_ai(content, title, category)
+                                content = enhanced_content
+                                st.success("✨ Innehåll förbättrat med AI!")
+                            except Exception as e:
+                                st.warning(f"AI-assistance misslyckades: {str(e)}")
+                    
+                    post_id = st.session_state.data_manager.create_blog_post(
+                        title=title,
+                        content=content,
+                        category=category,
+                        tags=tags,
+                        published=published,
+                        featured=featured,
+                        excerpt=excerpt
+                    )
+                    
+                    if post_id:
+                        st.success(f"✅ Blogginlägg skapat! ID: {post_id}")
+                        if published:
+                            st.info("📢 Inlägget är nu live på bloggen!")
+                    else:
+                        st.error("❌ Fel vid skapande av blogginlägg")
+                else:
+                    st.error("⚠️ Titel och innehåll krävs")
+    
+    with admin_tabs[1]:
+        st.subheader("Hantera befintliga inlägg")
+        
+        # Hämta alla inlägg (även opublicerade)
+        all_posts = st.session_state.data_manager.get_blog_posts(published_only=False)
+        
+        if all_posts:
+            for post in all_posts:
+                with st.expander(f"{'📢' if post['published'] else '📝'} {post['title']}"):
+                    col1, col2, col3 = st.columns([2, 1, 1])
+                    
+                    with col1:
+                        st.write(f"**Kategori:** {post['category']}")
+                        st.write(f"**Skapad:** {post['created_at']}")
+                        if post.get('tags'):
+                            st.write(f"**Taggar:** {', '.join(post['tags'])}")
+                    
+                    with col2:
+                        st.write(f"**Status:** {'Publicerad' if post['published'] else 'Utkast'}")
+                        st.write(f"**Utvald:** {'Ja' if post['featured'] else 'Nej'}")
+                    
+                    with col3:
+                        if st.button(f"🗑️ Ta bort", key=f"delete_{post['id']}"):
+                            if st.session_state.data_manager.delete_blog_post(post['id']):
+                                st.success("Inlägg borttaget!")
+                                st.rerun()
+                        
+                        # Toggle publish status
+                        new_status = not post['published']
+                        status_text = "Publicera" if not post['published'] else "Dölj"
+                        if st.button(f"📢 {status_text}", key=f"toggle_{post['id']}"):
+                            if st.session_state.data_manager.update_blog_post(post['id'], published=new_status):
+                                st.success(f"Status ändrad till {'publicerad' if new_status else 'dold'}!")
+                                st.rerun()
+        else:
+            st.info("📝 Inga blogginlägg skapade än")
+
+def show_blog_public():
+    """Visa publik blog-vy"""
+    # Sök och filter
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        search_term = st.text_input("🔍 Sök i bloggen", placeholder="Sök efter nyckelord...")
+    
+    with col2:
+        categories = st.session_state.data_manager.get_blog_categories()
+        selected_category = st.selectbox("📂 Kategori", ["Alla"] + categories)
+    
+    # Hämta inlägg
+    if search_term:
+        posts = st.session_state.data_manager.search_blog_posts(search_term)
+    else:
+        category_filter = None if selected_category == "Alla" else selected_category
+        posts = st.session_state.data_manager.get_blog_posts(
+            published_only=True, 
+            category=category_filter
+        )
+    
+    # Visa utvalda inlägg först
+    featured_posts = [p for p in posts if p.get('featured')]
+    regular_posts = [p for p in posts if not p.get('featured')]
+    
+    if featured_posts:
+        st.subheader("⭐ Utvalda Inlägg")
+        for post in featured_posts[:2]:  # Visa max 2 utvalda
+            show_blog_post_card(post, featured=True)
+        
+        st.markdown("---")
+    
+    if regular_posts:
+        st.subheader("📰 Senaste Inlägg")
+        for post in regular_posts:
+            show_blog_post_card(post)
+    
+    if not posts:
+        if search_term:
+            st.info(f"🔍 Inga inlägg hittades för '{search_term}'")
+        else:
+            st.info("📝 Inga blogginlägg publicerade än")
+
+def show_blog_post_card(post, featured=False):
+    """Visa ett blogginlägg som kort"""
+    # Styling för utvalda inlägg
+    container = st.container()
+    if featured:
+        container.markdown("""
+        <div style="padding: 1rem; border: 2px solid #ff6b6b; border-radius: 10px; margin-bottom: 1rem; background: linear-gradient(135deg, #ff6b6b10, #4ecdc410);">
+        """, unsafe_allow_html=True)
+    
+    with container:
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            if featured:
+                st.markdown(f"### ⭐ {post['title']}")
+            else:
+                st.markdown(f"### {post['title']}")
+            
+            # Excerpt eller förkortad content
+            display_text = post.get('excerpt', '')
+            if not display_text:
+                display_text = post['content'][:200] + "..." if len(post['content']) > 200 else post['content']
+            
+            st.write(display_text)
+            
+            # Metadata
+            col_meta1, col_meta2, col_meta3 = st.columns(3)
+            with col_meta1:
+                st.caption(f"📅 {post['created_at'][:10]}")
+            with col_meta2:
+                st.caption(f"📂 {post['category']}")
+            with col_meta3:
+                if post.get('tags'):
+                    st.caption(f"🏷️ {', '.join(post['tags'][:2])}")
+        
+        with col2:
+            if st.button(f"📖 Läs mer", key=f"read_{post['id']}"):
+                st.session_state.selected_blog_post = post
+                st.rerun()
+    
+    if featured:
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Visa fullständigt inlägg om valt
+    if st.session_state.get('selected_blog_post', {}).get('id') == post['id']:
+        with st.expander("📖 Fullständigt inlägg", expanded=True):
+            st.markdown(f"# {post['title']}")
+            st.caption(f"📅 {post['created_at']} | 📂 {post['category']} | ✍️ {post['author']}")
+            
+            if post.get('tags'):
+                tag_html = " ".join([f"<span style='background-color: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;'>{tag}</span>" for tag in post['tags']])
+                st.markdown(f"🏷️ {tag_html}", unsafe_allow_html=True)
+            
+            st.markdown("---")
+            st.markdown(post['content'])
+            
+            if st.button("❌ Stäng"):
+                st.session_state.selected_blog_post = None
+                st.rerun()
+
+def enhance_blog_content_with_ai(content, title, category):
+    """Förbättra blogginlägg med AI"""
+    try:
+        ai_coach = st.session_state.ai_coach
+        
+        prompt = f"""
+        Som en expert på AI-coaching och personlig utveckling, förbättra följande blogginlägg:
+        
+        Titel: {title}
+        Kategori: {category}
+        Ursprungligt innehåll: {content}
+        
+        Förbättra innehållet genom att:
+        1. Göra det mer engagerande och läsbart
+        2. Lägga till praktiska tips och exempel
+        3. Strukturera med rubriker och punktlistor
+        4. Använda emojis och coaching-språk
+        5. Lägga till en inspirerande avslutning
+        
+        Behåll den ursprungliga tonen men gör det mer professionellt och värdefullt för läsaren.
+        Skriv på svenska och använd markdown-formatering.
+        """
+        
+        response, _ = ai_coach.get_response(prompt)
+        return response
+        
+    except Exception as e:
+        raise Exception(f"AI-enhancement misslyckades: {str(e)}")
 
 if __name__ == "__main__":
     main()

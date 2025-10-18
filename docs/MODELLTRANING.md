@@ -441,10 +441,286 @@ core/
 ## Nästa steg: Användning och Optimering
 
 1. ✅ **KLAR** - AI Expert-funktionalitet implementerad och deployad
-2. 📊 **Pågår** - Samla användarfeedback på AI-svar kvalitet
+2. 📊 **Pågår** - Blog-funktionalitet med PostgreSQL-databas
 3. 🔧 **Planerat** - Iterera kunskapsbas baserat på verkliga frågor
 4. 📈 **Planerat** - Analysera användarmönster för AI-relaterade frågor
 5. 🎯 **Planerat** - Optimera relevans-scoring för bättre kontext-matching
+
+## Affärsmodell och Monetarisering 💰
+
+### Strategisk Eftertanke FÖRE Implementation
+Du har helt rätt - innan vi kodar mer behöver vi en genomtänkt affärsmodell. AI-Coachen har stor potential för intäktsgenererande.
+
+### 🎯 Primära Intäktsströmmar
+
+#### 1. **Annonsentering & Display Marketing** 📢
+```python
+# Streamlit + HTML integration för annonser
+st.components.v1.html("""
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXXXX"
+     data-ad-slot="XXXXXX"
+     data-ad-format="auto"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+""")
+```
+
+**Potentiella Annonspartners:**
+- **Google AdSense** - Kontextuella annonser baserat på coaching-innehåll
+- **LinkedIn Business** - Riktade annonser för professionell utveckling
+- **Coursera/Udemy** - Kursrekommendationer som annonser
+- **Coaching-verktyg** - Mjukvaror som Notion, Trello, ClickUp
+
+#### 2. **Affiliate Marketing & Provision** 🤝
+```python
+# Smart affiliate-integration i AI-svar
+def generate_coaching_response_with_affiliates(user_query):
+    base_response = ai_coach.get_response(user_query)
+    
+    # Lägg till relevanta affiliate-rekommendationer
+    if "produktivitet" in user_query.lower():
+        affiliate_suggestion = """
+        
+        💡 **Rekommenderad resurs**: 
+        [Notion Pro för Coaching](https://affiliate-link.com) - 20% rabatt med kod AICOACH
+        """
+    elif "AI-kurs" in user_query.lower():
+        affiliate_suggestion = """
+        
+        📚 **Rekommenderad kurs**: 
+        [Machine Learning Specialization](https://coursera-affiliate.com) - Starta din AI-resa
+        """
+    
+    return base_response + affiliate_suggestion
+```
+
+**Affiliate-kategorier:**
+- **Utbildning** - Coursera, Udemy, MasterClass (10-20% provision)
+- **Böcker** - Amazon Associates (4-8% provision)
+- **Mjukvaror** - SaaS-verktyg för produktivitet (20-40% provision)
+- **Coaching-certifieringar** - ICF, CCE kurser (15-25% provision)
+- **AI-verktyg** - ChatGPT Plus, Claude Pro, Midjourney (variabel)
+
+#### 3. **Premium-innehåll & Freemium-modell** 💎
+```python
+# Begränsningar för gratis användare
+class AICoachUsageLimiter:
+    def __init__(self):
+        self.free_daily_limit = 10
+        self.premium_unlimited = True
+    
+    def check_usage_limit(self, user_type="free"):
+        if user_type == "free":
+            return self.get_daily_usage() < self.free_daily_limit
+        return True
+    
+    def show_upgrade_prompt(self):
+        st.warning("""
+        🚀 **Uppgradera till AI-Coach Pro**
+        - Obegränsade chattar
+        - Avancerade AI-verktyg
+        - Personliga coaching-planer
+        - Prioriterad support
+        
+        **Endast 99 kr/månad** [Uppgradera nu](premium-link)
+        """)
+```
+
+### 📊 Intäktsprognoser (Konservativa uppskattningar)
+
+#### Månad 1-3: MVP & Trafikbyggande
+- **Användarantal**: 100-500 aktiva/månad
+- **Annonsintäkter**: 200-1,000 kr/månad
+- **Affiliate-provision**: 100-800 kr/månad
+- **Total**: 300-1,800 kr/månad
+
+#### Månad 4-12: Tillväxtfas
+- **Användarantal**: 1,000-5,000 aktiva/månad
+- **Annonsintäkter**: 2,000-15,000 kr/månad
+- **Affiliate-provision**: 3,000-25,000 kr/månad
+- **Premium-användare**: 50-200 × 99 kr = 5,000-20,000 kr/månad
+- **Total**: 10,000-60,000 kr/månad
+
+#### År 2+: Skalning
+- **Användarantal**: 10,000+ aktiva/månad
+- **Total potentiell intäkt**: 100,000-500,000 kr/månad
+
+### 🛠️ Teknisk Implementation för Monetarisering
+
+#### Steg 1: Annonssystem
+```python
+# utils/ad_manager.py
+class AdManager:
+    def __init__(self):
+        self.ad_placements = {
+            "sidebar": "Google AdSense",
+            "between_chat": "Affiliate suggestions",
+            "footer": "Course recommendations"
+        }
+    
+    def show_contextual_ad(self, chat_context):
+        # Visa relevanta annonser baserat på konversationsämne
+        if "karriär" in chat_context:
+            return self.get_career_coaching_ads()
+        elif "AI" in chat_context:
+            return self.get_ai_learning_ads()
+```
+
+#### Steg 2: Affiliate-tracking
+```python
+# utils/affiliate_tracker.py
+class AffiliateTracker:
+    def __init__(self):
+        self.partnerships = {
+            "coursera": {"rate": 0.15, "cookie_days": 30},
+            "amazon": {"rate": 0.06, "cookie_days": 24},
+            "notion": {"rate": 0.25, "cookie_days": 60}
+        }
+    
+    def generate_affiliate_link(self, partner, product_id, user_id):
+        return f"https://{partner}.com/{product_id}?ref=aicoachen&user={user_id}"
+    
+    def track_conversion(self, partner, amount):
+        commission = amount * self.partnerships[partner]["rate"]
+        # Spara i databas för rapportering
+```
+
+#### Steg 3: Premium-gating
+```python
+# utils/premium_manager.py
+class PremiumManager:
+    def __init__(self):
+        self.stripe_api = stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+    
+    def create_checkout_session(self, user_id):
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'sek',
+                    'product_data': {
+                        'name': 'AI-Coach Pro',
+                    },
+                    'unit_amount': 9900,  # 99 kr
+                    'recurring': {'interval': 'month'}
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url='https://ai-coachen.onrender.com/success',
+            cancel_url='https://ai-coachen.onrender.com/cancel',
+        )
+        return session.url
+```
+
+### 🎯 Marknadsförings & Trafik-strategi
+
+#### Organisk tillväxt
+- **SEO-optimerad blog** med AI-coaching innehåll
+- **Social media** - LinkedIn-artiklar om AI-transformation
+- **Community building** - AI-coaching Facebook-grupp
+- **Partnerskap** - Med universitet och företag
+
+#### Betald marknadsföring
+- **Google Ads** - Targeting "AI coaching", "personlig utveckling"
+- **LinkedIn Ads** - För B2B university market
+- **Facebook/Instagram** - För personlig coaching
+- **YouTube** - AI-coaching tutorials och case studies
+
+### 💼 Varför denna modell fungerar:
+
+1. **Låg startinvestering** - Bygg på befintlig Streamlit-app
+2. **Skalbar** - Fler användare = mer annonsinkomst
+3. **Diversifierad** - Flera intäktsströmmar minskar risk
+4. **Organisk integration** - Annonser känns naturliga i coaching-kontext
+5. **Återkommande intäkter** - Premium-subscriptions ger stabilitet
+
+### 🚀 Resurseffektiv Implementation Timeline:
+
+## SMART STRATEGI: Steg-för-steg med minimal resursförbrukning
+
+### Fas 1: Quick Wins (1-2 requests) 📈
+**Mål: Börja tjäna pengar OMEDELBART med minimal development**
+
+```markdown
+✅ PRIO 1: Enkel Affiliate-integration (0 extra filer)
+- [ ] Lägg till affiliate-länkar direkt i AI-svar 
+- [ ] Amazon Associates: Bokförsäljning i coaching-svar
+- [ ] Coursera: AI-kurs länkar när folk frågar om AI-utbildning
+- [ ] Implementation: Bara utöka befintlig ai_coach.py med affiliate-links
+
+✅ PRIO 2: Google AdSense (1 fil)
+- [ ] Skapa enkel utils/ads.py
+- [ ] HTML-komponenter i Streamlit sidebars
+- [ ] Inga databaser behövs - bara display
+```
+
+### Fas 2: Blog som Content Engine (2-3 requests) 📝  
+**Mål: Skapa trafik och SEO-värde för att driva fler affiliate-klick**
+
+```markdown
+🎯 SMART APPROACH: SQLite först, PostgreSQL senare
+- [ ] Enkel blog med SQLite (återanvänd befintlig data_manager.py)
+- [ ] SEO-optimerade AI-coaching artiklar
+- [ ] Affiliate-länkar inbyggda i blogginlägg
+- [ ] Ingen inlogg behövs - bara läsning + admin-läge
+```
+
+### Fas 3: Premium Light (1-2 requests) 💎
+**Mål: Enkel begränsning utan komplex betalning**
+
+```markdown
+🔥 MINIMAL VIABLE PREMIUM:
+- [ ] Session-baserade begränsningar (10 chattar/dag gratis)
+- [ ] PayPal "donate for premium" knapp först
+- [ ] Stripe integration SENARE när vi tjänar pengar
+- [ ] Inga databaser för användare ännu
+```
+
+## 💰 KOSTNAD-NYTTA ANALYS PER FAS:
+
+### Fas 1: Affiliate Quick Wins
+- **Resurskostnad**: 1-2 premium requests
+- **Potentiell intäkt**: 500-2,000 kr/månad
+- **ROI**: 25x-100x inom 3 månader
+
+### Fas 2: Blog Content Engine  
+- **Resurskostnad**: 2-3 premium requests
+- **Potentiell intäkt**: 1,000-5,000 kr/månad (mer trafik = mer affiliate)
+- **ROI**: 15x-50x inom 6 månader
+
+### Fas 3: Premium Light
+- **Resurskostnad**: 1-2 premium requests  
+- **Potentiell intäkt**: 2,000-10,000 kr/månad
+- **ROI**: 20x-100x inom 6 månader
+
+## ⚡ IMPLEMENTATIONSORDNING (Total: 4-7 requests):
+
+```
+DAG 1: Affiliate-länkar i AI-svar (GRATIS att lägga till)
+DAG 2: Google AdSense integration (1 request)
+VECKA 2: Enkel blog med SQLite (2 requests)  
+VECKA 3: Session-begränsningar (1 request)
+VECKA 4: PayPal donate-knapp (1 request)
+```
+
+## 🎯 VARFÖR DENNA ORDNING FUNGERAR:
+
+1. **Affiliate först** = Omedelbar intäkt utan development
+2. **Blog andra** = Bygger trafik för mer affiliate-intäkter  
+3. **Premium sist** = När vi redan tjänar pengar och kan investera
+
+## 📊 REALISTISKA INTÄKTSMÅL:
+
+**Månad 1**: 200-1,000 kr (affiliate)
+**Månad 2**: 800-3,000 kr (affiliate + ads)  
+**Månad 3**: 2,000-8,000 kr (+ blog trafik)
+**Månad 4**: 4,000-15,000 kr (+ premium light)
+
+### Rekommendation: 
+**BÖRJA MED AFFILIATE-LÄNKAR IDAG - kostar 0 requests, bara textändringar i befintlig kod. Kan generera intäkter inom veckor!**
 
 ### Hur du testar AI-expertis:
 1. Gå till https://ai-coachen.onrender.com
