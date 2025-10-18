@@ -28,28 +28,14 @@ class DataManager:
         if not self.database_url:
             raise ValueError("DATABASE_URL miljövariabel saknas! Kontrollera .env filen.")
             
-        # Sätt PostgreSQL som aktiv
-        self.use_postgres = True
         self.logger.info("Using PostgreSQL database: ai-coachen-db")
         
         # Initialisera databas
         self._init_database()
     
     def _get_connection(self):
-        """Få PostgreSQL-anslutning med SSL-hantering"""
-        try:
-            # Först försök med standard URL
-            return psycopg2.connect(self.database_url, cursor_factory=RealDictCursor)
-        except psycopg2.OperationalError as e:
-            if "SSL" in str(e):
-                # Om SSL-problem, försök med sslmode=require
-                ssl_url = self.database_url
-                if "?" in ssl_url:
-                    ssl_url += "&sslmode=require"
-                else:
-                    ssl_url += "?sslmode=require"
-                return psycopg2.connect(ssl_url, cursor_factory=RealDictCursor)
-            raise
+        """Få PostgreSQL-anslutning"""
+        return psycopg2.connect(self.database_url, cursor_factory=RealDictCursor)
     
     def _init_database(self):
         """Initialisera PostgreSQL-schema"""
