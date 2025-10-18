@@ -954,11 +954,15 @@ def show_blog_post_card(post, featured=False):
     container = st.container()
     if featured:
         container.markdown("""
-        <div style="padding: 1rem; border: 2px solid #ff6b6b; border-radius: 10px; margin-bottom: 1rem; background: linear-gradient(135deg, #ff6b6b10, #4ecdc410);">
+        <div style="padding: 1.5rem; border: 3px solid #ff6b6b; border-radius: 15px; margin-bottom: 1.5rem; background: linear-gradient(135deg, #ff6b6b15, #4ecdc415); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        """, unsafe_allow_html=True)
+    else:
+        container.markdown("""
+        <div style="padding: 1rem; border: 1px solid #e0e0e0; border-radius: 10px; margin-bottom: 1rem; background: #fafafa;">
         """, unsafe_allow_html=True)
     
     with container:
-        col1, col2 = st.columns([3, 1])
+        col1, col2 = st.columns([4, 1])
         
         with col1:
             if featured:
@@ -966,15 +970,17 @@ def show_blog_post_card(post, featured=False):
             else:
                 st.markdown(f"### {post['title']}")
             
-            # Excerpt eller förkortad content
+            # Excerpt eller förkortad content - visa mer text för att ge bättre förhandsgranskning
             display_text = post.get('excerpt', '')
             if not display_text:
-                display_text = post['content'][:200] + "..." if len(post['content']) > 200 else post['content']
+                # Ta bort markdown-headers från förhandsgranskningen för renare utseende
+                content_preview = post['content'].replace('#', '').strip()
+                display_text = content_preview[:300] + "..." if len(content_preview) > 300 else content_preview
             
             st.write(display_text)
             
             # Metadata
-            col_meta1, col_meta2, col_meta3 = st.columns(3)
+            col_meta1, col_meta2, col_meta3 = st.columns([1, 1, 2])
             with col_meta1:
                 # Hantera datetime objekt från PostgreSQL
                 created_date = post['created_at']
@@ -987,37 +993,65 @@ def show_blog_post_card(post, featured=False):
                 st.caption(f"📂 {post['category']}")
             with col_meta3:
                 if post.get('tags'):
-                    st.caption(f"🏷️ {', '.join(post['tags'][:2])}")
+                    st.caption(f"🏷️ {', '.join(post['tags'][:3])}")
         
         with col2:
-            if st.button(f"📖 Läs mer", key=f"read_{post['id']}"):
+            st.markdown("<br>", unsafe_allow_html=True)  # Lägg till lite mellanrum
+            if st.button(f"📖 Läs hela inlägget", key=f"read_{post['id']}", type="primary" if featured else "secondary"):
                 st.session_state.selected_blog_post = post
                 st.rerun()
     
-    if featured:
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # Visa fullständigt inlägg om valt
     selected_post = st.session_state.get('selected_blog_post')
     if selected_post and selected_post.get('id') == post['id']:
-        with st.expander("📖 Fullständigt inlägg", expanded=True):
-            st.markdown(f"# {post['title']}")
+        st.markdown("---")
+        
+        # Stor, tydlig header för det fullständiga inlägget
+        st.markdown(f"# 📖 {post['title']}")
+        
+        # Metadata i en snygg layout
+        col_meta1, col_meta2, col_meta3 = st.columns(3)
+        with col_meta1:
             # Hantera datetime för PostgreSQL
             created_date = post['created_at']
             if hasattr(created_date, 'strftime'):
                 date_str = created_date.strftime('%Y-%m-%d')
             else:
                 date_str = str(created_date)
-            st.caption(f"📅 {date_str} | 📂 {post['category']} | ✍️ {post['author']}")
+            st.info(f"📅 **Publicerat:** {date_str}")
             
-            if post.get('tags'):
-                tag_html = " ".join([f"<span style='background-color: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;'>{tag}</span>" for tag in post['tags']])
-                st.markdown(f"🏷️ {tag_html}", unsafe_allow_html=True)
+        with col_meta2:
+            st.info(f"📂 **Kategori:** {post['category']}")
             
-            st.markdown("---")
-            st.markdown(post['content'])
+        with col_meta3:
+            st.info(f"✍️ **Författare:** {post['author']}")
             
-            if st.button("❌ Stäng"):
+        # Tags om de finns
+        if post.get('tags'):
+            st.markdown("**🏷️ Taggar:**")
+            tag_html = " ".join([f"<span style='background-color: #e3f2fd; padding: 4px 8px; border-radius: 15px; font-size: 0.9em; margin-right: 8px; color: #1976d2; border: 1px solid #bbdefb;'>{tag}</span>" for tag in post['tags']])
+            st.markdown(tag_html, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Innehållet med bättre styling
+        st.markdown(
+            f"""
+            <div style="background-color: #fafafa; padding: 2rem; border-radius: 10px; border-left: 4px solid #2196f3;">
+            {post['content']}
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        st.markdown("---")
+        
+        # Stängknapp
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            if st.button("❌ Stäng inlägg", key="close_post", type="primary"):
                 st.session_state.selected_blog_post = None
                 st.rerun()
 
