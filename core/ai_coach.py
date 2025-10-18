@@ -1,6 +1,7 @@
 """
 AI Coach - Huvudmodell för intelligent coaching
 Kombinerar personlig coaching med universitets AI-implementering
+Nu med AI-expertis via RAG-system för förbättrade AI-relaterade svar
 """
 
 import os
@@ -14,6 +15,14 @@ from enum import Enum
 import openai
 from pydantic import BaseModel
 import tiktoken
+
+# Importera AI-expertis moduler
+try:
+    from utils.ai_expert_integration import ai_expert_integration
+    AI_EXPERT_AVAILABLE = True
+except ImportError:
+    AI_EXPERT_AVAILABLE = False
+    logging.warning("AI Expert integration inte tillgänglig - kör utan AI-expertis")
 
 class CoachingMode(Enum):
     PERSONAL = "personal"
@@ -161,7 +170,7 @@ class AICoach:
         return "Message added successfully"
     
     def get_response(self, user_message: str) -> Tuple[str, Dict]:
-        """Få svar från AI-coachen"""
+        """Få svar från AI-coachen med AI-expertis integration"""
         if not self.current_session:
             raise ValueError("Ingen aktiv session. Starta en session först.")
         
@@ -187,6 +196,22 @@ class AICoach:
                 system_msg = messages_for_api[0]
                 recent_messages = messages_for_api[-10:]  # Behåll senaste 10
                 messages_for_api = [system_msg] + recent_messages
+            
+            # NYTT: Förbättra system-prompt med AI-expertis om tillgängligt
+            if AI_EXPERT_AVAILABLE and len(messages_for_api) > 0:
+                original_system_prompt = messages_for_api[0]["content"]
+                mode_string = self.current_session.mode.value
+                
+                enhanced_system_prompt = ai_expert_integration.create_enhanced_prompt(
+                    original_system_prompt, 
+                    user_message, 
+                    mode_string
+                )
+                
+                # Uppdatera system-prompt med AI-expertis
+                messages_for_api[0]["content"] = enhanced_system_prompt
+                
+                self.logger.info("Enhanced system prompt med AI-expertis för AI-relaterad fråga")
             
             # Anropa OpenAI API
             response = self.client.chat.completions.create(
