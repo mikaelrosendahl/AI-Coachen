@@ -874,7 +874,13 @@ def show_blog_admin():
                     
                     with col1:
                         st.write(f"**Kategori:** {post['category']}")
-                        st.write(f"**Skapad:** {post['created_at']}")
+                        # Hantera datetime för PostgreSQL
+                        created_date = post['created_at']
+                        if hasattr(created_date, 'strftime'):
+                            date_str = created_date.strftime('%Y-%m-%d %H:%M')
+                        else:
+                            date_str = str(created_date)
+                        st.write(f"**Skapad:** {date_str}")
                         if post.get('tags'):
                             st.write(f"**Taggar:** {', '.join(post['tags'])}")
                     
@@ -970,7 +976,13 @@ def show_blog_post_card(post, featured=False):
             # Metadata
             col_meta1, col_meta2, col_meta3 = st.columns(3)
             with col_meta1:
-                st.caption(f"📅 {post['created_at'][:10]}")
+                # Hantera datetime objekt från PostgreSQL
+                created_date = post['created_at']
+                if hasattr(created_date, 'strftime'):
+                    date_str = created_date.strftime('%Y-%m-%d')
+                else:
+                    date_str = str(created_date)[:10]
+                st.caption(f"📅 {date_str}")
             with col_meta2:
                 st.caption(f"📂 {post['category']}")
             with col_meta3:
@@ -989,7 +1001,13 @@ def show_blog_post_card(post, featured=False):
     if st.session_state.get('selected_blog_post', {}).get('id') == post['id']:
         with st.expander("📖 Fullständigt inlägg", expanded=True):
             st.markdown(f"# {post['title']}")
-            st.caption(f"📅 {post['created_at']} | 📂 {post['category']} | ✍️ {post['author']}")
+            # Hantera datetime för PostgreSQL
+            created_date = post['created_at']
+            if hasattr(created_date, 'strftime'):
+                date_str = created_date.strftime('%Y-%m-%d')
+            else:
+                date_str = str(created_date)
+            st.caption(f"📅 {date_str} | 📂 {post['category']} | ✍️ {post['author']}")
             
             if post.get('tags'):
                 tag_html = " ".join([f"<span style='background-color: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;'>{tag}</span>" for tag in post['tags']])
