@@ -28,5 +28,35 @@
     "cost_usd": 0.00035,
     "session_id": "user_1_20250930_082230",
     "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T20:13:57.209882",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 1251,
+    "completion_tokens": 250,
+    "total_tokens": 1501,
+    "cost_usd": 0.0023765,
+    "session_id": "test_20251018_201353",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T20:14:36.752062",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 201,
+    "completion_tokens": 473,
+    "total_tokens": 674,
+    "cost_usd": 0.0012475,
+    "session_id": "test2_20251018_201431",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T20:14:49.632151",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 195,
+    "completion_tokens": 288,
+    "total_tokens": 483,
+    "cost_usd": 0.0008685,
+    "session_id": "test3_20251018_201445",
+    "mode": "personal"
   }
 ]
