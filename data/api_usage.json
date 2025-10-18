@@ -8,5 +8,25 @@
     "cost_usd": 0.00035999999999999997,
     "session_id": "user_1_20250930_072446",
     "mode": "personal"
+  },
+  {
+    "timestamp": "2025-09-30T07:31:24.489150",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 207,
+    "completion_tokens": 34,
+    "total_tokens": 241,
+    "cost_usd": 0.00037850000000000004,
+    "session_id": "user_1_20250930_073119",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-09-30T08:22:42.129088",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 196,
+    "completion_tokens": 28,
+    "total_tokens": 224,
+    "cost_usd": 0.00035,
+    "session_id": "user_1_20250930_082230",
+    "mode": "personal"
   }
 ]
