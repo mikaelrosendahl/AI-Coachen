@@ -58,5 +58,105 @@
     "cost_usd": 0.0008685,
     "session_id": "test3_20251018_201445",
     "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:18:24.337092",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 947,
+    "completion_tokens": 459,
+    "total_tokens": 1406,
+    "cost_usd": 0.0023385,
+    "session_id": "test_user_20251018_211819",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:18:31.269514",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 914,
+    "completion_tokens": 599,
+    "total_tokens": 1513,
+    "cost_usd": 0.002569,
+    "session_id": "test_user_20251018_211819",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:18:36.851397",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 1712,
+    "completion_tokens": 707,
+    "total_tokens": 2419,
+    "cost_usd": 0.003981999999999999,
+    "session_id": "test_user_20251018_211819",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:20:17.890243",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 1259,
+    "completion_tokens": 319,
+    "total_tokens": 1578,
+    "cost_usd": 0.0025265,
+    "session_id": "test_user_20251018_212012",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:22:15.537585",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 939,
+    "completion_tokens": 263,
+    "total_tokens": 1202,
+    "cost_usd": 0.0019345,
+    "session_id": "test_user_20251018_212212",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:22:19.800428",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 1055,
+    "completion_tokens": 517,
+    "total_tokens": 1572,
+    "cost_usd": 0.0026165,
+    "session_id": "test_user_20251018_212212",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:22:24.448312",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 1427,
+    "completion_tokens": 729,
+    "total_tokens": 2156,
+    "cost_usd": 0.0035985,
+    "session_id": "test_user_20251018_212212",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:22:28.335830",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 2796,
+    "completion_tokens": 531,
+    "total_tokens": 3327,
+    "cost_usd": 0.005256,
+    "session_id": "test_user_20251018_212212",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:22:33.602498",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 3183,
+    "completion_tokens": 792,
+    "total_tokens": 3975,
+    "cost_usd": 0.0063585000000000004,
+    "session_id": "test_user_20251018_212212",
+    "mode": "personal"
+  },
+  {
+    "timestamp": "2025-10-18T21:22:38.605221",
+    "model": "gpt-3.5-turbo",
+    "prompt_tokens": 4620,
+    "completion_tokens": 749,
+    "total_tokens": 5369,
+    "cost_usd": 0.008428,
+    "session_id": "test_user_20251018_212212",
+    "mode": "personal"
   }
 ]

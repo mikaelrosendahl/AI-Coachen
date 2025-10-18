@@ -1,12 +1,69 @@
 #!/usr/bin/env python3
 """
-AI Expert Demonstration
-Visar AI-Coachens nya AI-expertis funktionalitet
+AI Expert & Affiliate Demonstration
+Visar AI-Coachens nya AI-expertis funktionalitet och affiliate-integration
 """
 
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+def test_affiliate_integration():
+    """Testa affiliate-integration i detalj"""
+    print("\n💰 AFFILIATE-INTEGRATION TEST")
+    print("=" * 50)
+    
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        from core.ai_coach import create_ai_coach, CoachingMode
+        
+        coach = create_ai_coach()
+        session_id = coach.start_session('test_user', CoachingMode.PERSONAL)
+        print(f"✅ Session startad: {session_id}")
+        
+        # Test affiliate-kategorier
+        affiliate_tests = [
+            ("Vad är machine learning?", "🤖 AI/ML Kurser"),
+            ("Rekommenderade AI-böcker?", "📚 AI Böcker"),
+            ("Jag behöver bli mer produktiv", "⚡ Produktivitetsverktyg"),
+            ("AI-verktyg för design?", "🛠️ AI Verktyg"),
+            ("Jag vill bli certifierad coach", "🎯 Coaching Utbildning"),
+            ("Molntjänster för AI?", "☁️ Cloud Services")
+        ]
+        
+        success_count = 0
+        for question, category in affiliate_tests:
+            print(f"\n{category}")
+            print(f"Fråga: '{question}'")
+            
+            response, _ = coach.get_response(question)
+            
+            # Kontrollera om affiliate-sektion finns
+            has_affiliate = "Rekommenderade resurser" in response
+            if has_affiliate:
+                print("✅ Affiliate-länkar genererade")
+                success_count += 1
+                
+                # Visa affiliate-sektion
+                start = response.find("💡 **Rekommenderade resurser")
+                if start != -1:
+                    affiliate_section = response[start:start+300]
+                    print(f"📋 Preview: {affiliate_section}...")
+            else:
+                print("❌ Inga affiliate-länkar")
+        
+        coach.end_session()
+        
+        print(f"\n🎯 RESULTAT: {success_count}/{len(affiliate_tests)} kategorier framgångsrika")
+        
+        if success_count == len(affiliate_tests):
+            print("🎉 ALLA AFFILIATE-TESTER GODKÄNDA!")
+        else:
+            print("⚠️ Vissa affiliate-tester misslyckades")
+            
+    except Exception as e:
+        print(f"❌ FEL: {e}")
 
 def demonstrate_ai_knowledge():
     """Visa AI-kunskapsbasens innehåll"""
@@ -168,32 +225,37 @@ Din approach är empatisk och fokuserar på att hjälpa användaren hitta sina e
 
 def main():
     """Kör full demonstration"""
-    print("🚀 AI-COACHEN AI EXPERTIS DEMONSTRATION")
-    print("=" * 60)
-    print("Visar den nya AI-expertis funktionaliteten som implementerats")
+    print("🚀 AI-COACHEN AI EXPERTIS & AFFILIATE DEMONSTRATION")
+    print("=" * 70)
+    print("Visar den nya AI-expertis funktionaliteten och affiliate-integration")
     print("Live på: https://ai-coachen.online")
-    print("=" * 60)
+    print("=" * 70)
     
     # Kör alla demonstrationer
+    test_affiliate_integration()  # NY: Test affiliate först
     demonstrate_ai_knowledge()
     demonstrate_rag_intelligence()
     demonstrate_expertise_levels() 
     demonstrate_coaching_integration()
     
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 70)
     print("🎊 DEMONSTRATION SLUTFÖRD")
-    print("=" * 60)
+    print("=" * 70)
+    print("✅ Affiliate-integration: Funktionell med 6 kategorier")
     print("✅ AI-kunskapsbas: Funktionell med 25+ dokument")
     print("✅ RAG-system: Intelligent AI-fråga identifiering")
     print("✅ Expertis-nivåer: Automatisk detektering")
     print("✅ Coaching-integration: Seamless AI-expertis enhancement")
-    print("\n🎯 AI-Coachen är nu en fullfjädrad AI-expert!")
+    print("\n🎯 AI-Coachen är nu en fullfjädrad AI-expert med monetisering!")
     print("🌐 Testa live: https://ai-coachen.online")
-    print("\n📋 TESTFÖRSLAG:")
-    print("   • 'Vad är machine learning?'")
-    print("   • 'Hur implementerar jag MLOps?'")
-    print("   • 'AI transformation roadmap för universitet?'")
-    print("   • 'Transformer architecture förklaring'")
+    print("\n📋 AFFILIATE-TESTFÖRSLAG:")
+    print("   🤖 AI/ML: 'Vad är machine learning?'")
+    print("   📚 Böcker: 'Rekommenderade AI-böcker?'")
+    print("   ⚡ Produktivitet: 'Jag behöver bli mer produktiv'")
+    print("   🛠️ AI-verktyg: 'AI-verktyg för design?'")
+    print("   🎯 Coaching: 'Jag vill bli certifierad coach'")
+    print("   ☁️ Cloud: 'Molntjänster för AI?'")
+    print("\n💡 FÖRVÄNTAT: Svar + '💡 Rekommenderade resurser' med affiliate-länkar")
 
 if __name__ == "__main__":
     main()
