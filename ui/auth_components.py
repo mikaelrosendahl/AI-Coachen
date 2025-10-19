@@ -51,7 +51,7 @@ def render_login_form() -> Tuple[bool, str, Optional[str]]:
             success, message, session_token = auth_manager.login_user(
                 email=email,
                 password=password,
-                ip_address=st.session_state.get('client_ip', 'unknown')
+                ip_address=st.session_state.get('client_ip', '127.0.0.1')
             )
             
             return True, message, session_token
