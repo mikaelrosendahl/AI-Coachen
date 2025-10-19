@@ -10,7 +10,8 @@ from typing import Dict, List, Optional, Any
 import logging
 from dotenv import load_dotenv
 
-# PostgreSQL support
+# Database support
+import sqlite3
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -25,36 +26,59 @@ class DataManager:
         
         # Hämta databas-URL
         self.database_url = os.getenv('DATABASE_URL')
+        
+        # Use SQLite for local development if no DATABASE_URL is set
         if not self.database_url:
-            raise ValueError("DATABASE_URL miljövariabel saknas! Kontrollera .env filen.")
-            
-        # Sätt PostgreSQL som aktiv
-        self.use_postgres = True
-        self.logger.info("Using PostgreSQL database: ai-coachen-db")
+            # Development mode - use SQLite
+            os.makedirs('data', exist_ok=True)
+            self.database_url = "sqlite:///data/local_coach.db"
+            self.use_sqlite = True
+            self.use_postgres = False
+            self.logger.info("Using local SQLite database for development")
+        else:
+            self.use_sqlite = self.database_url.startswith('sqlite')
+            self.use_postgres = not self.use_sqlite
+            if self.use_postgres:
+                self.logger.info("Using PostgreSQL database: ai-coachen-db")
         
         # Initialisera databas
         self._init_database()
     
+    @property
+    def db_path(self):
+        """Get database path (for SQLite compatibility)"""
+        if self.use_sqlite:
+            return self.database_url.replace('sqlite:///', '')
+        return self.database_url
+    
     def _get_connection(self):
-        """Få PostgreSQL-anslutning med SSL-hantering"""
-        try:
-            # Först försök med standard URL
-            return psycopg2.connect(self.database_url, cursor_factory=RealDictCursor)
-        except psycopg2.OperationalError as e:
-            if "SSL" in str(e):
-                # Om SSL-problem, försök med sslmode=require
-                ssl_url = self.database_url
-                if "?" in ssl_url:
-                    ssl_url += "&sslmode=require"
-                else:
-                    ssl_url += "?sslmode=require"
-                return psycopg2.connect(ssl_url, cursor_factory=RealDictCursor)
-            raise
+        """Få databasanslutning"""
+        if self.use_sqlite:
+            # Remove sqlite:/// prefix for sqlite3.connect
+            db_path = self.database_url.replace('sqlite:///', '')
+            return sqlite3.connect(db_path)
+        else:
+            try:
+                # Först försök med standard URL
+                return psycopg2.connect(self.database_url, cursor_factory=RealDictCursor)
+            except psycopg2.OperationalError as e:
+                if "SSL" in str(e):
+                    # Om SSL-problem, försök med sslmode=require
+                    ssl_url = self.database_url
+                    if "?" in ssl_url:
+                        ssl_url += "&sslmode=require"
+                    else:
+                        ssl_url += "?sslmode=require"
+                    return psycopg2.connect(ssl_url, cursor_factory=RealDictCursor)
+                raise
     
     def _init_database(self):
-        """Initialisera PostgreSQL-schema"""
+        """Initialisera databasschema"""
         try:
-            self._init_postgres_schema()
+            if self.use_sqlite:
+                self._init_sqlite_schema()
+            else:
+                self._init_postgres_schema()
         except Exception as e:
             self.logger.error(f"Database initialization failed: {str(e)}")
             raise
@@ -128,7 +152,8 @@ class DataManager:
     
     def _init_sqlite_schema(self):
         """Initialisera SQLite schema"""
-        with sqlite3.connect(self.db_path) as conn:
+        db_path = self.database_url.replace('sqlite:///', '')
+        with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
             
             # Blog posts tabell

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Logging utilities för AI-Coachen
 """

@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 Huvudapplikation för AI-Coachen
 Streamlit-baserat gränssnitt för både personlig coaching och universitets AI-implementering
+Med säker användarautentisering
 """
 
 import streamlit as st
@@ -22,6 +24,15 @@ from core.university_coach import UniversityAICoach, AIUseCase, StakeholderType,
 from utils.data_manager import DataManager
 from utils.api_usage_tracker import usage_tracker
 
+# Importera auth-system
+try:
+    from ui.auth_components import (check_authentication, render_auth_page, render_user_menu, 
+                                   render_user_settings, render_admin_dashboard)
+    AUTH_AVAILABLE = True
+except ImportError as e:
+    st.error(f"⚠️ Auth-system inte tillgängligt: {e}")
+    AUTH_AVAILABLE = False
+
 # Streamlit konfiguration
 st.set_page_config(
     page_title="AI-Coachen 🤖🎓",
@@ -29,6 +40,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Initialisera authentication state
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False
+
+if 'current_user' not in st.session_state:
+    st.session_state.current_user = None
+
+if 'show_settings' not in st.session_state:
+    st.session_state.show_settings = False
 
 # Initialisera session state
 if 'ai_coach' not in st.session_state:
@@ -59,10 +80,57 @@ if 'selected_blog_post' not in st.session_state:
 def main():
     """Huvudfunktion för applikationen"""
     
+    # Kontrollera autentisering först
+    if AUTH_AVAILABLE:
+        current_user = check_authentication()
+        
+        if not current_user:
+            # Visa inloggning/registrering
+            render_auth_page()
+            return
+        
+        # Användare är inloggad
+        st.session_state.current_user = current_user
+        st.session_state.authenticated = True
+        
+        # Visa användarinställningar om begärt
+        if st.session_state.get('show_settings', False):
+            render_user_settings(current_user)
+            return
+        
+        # Visa admin dashboard om begärt
+        if st.session_state.get('show_admin_dashboard', False):
+            render_admin_dashboard(current_user)
+            return
+    
+    else:
+        # Fallback om auth inte tillgängligt
+        st.warning("⚠️ Körs utan autentisering - endast för utveckling")
+        current_user = None
+    
     # Sidebar för navigation och inställningar
     with st.sidebar:
         st.title("🤖 AI-Coachen")
         st.markdown("Din intelligenta coach för personlig utveckling och AI-implementering")
+        
+        # Status-indikator för inloggning och admin
+        if AUTH_AVAILABLE:
+            st.markdown("---")
+            if current_user:
+                # Visa inloggningsstatus med admin-indikation
+                if current_user.is_admin:
+                    st.success(f"Inloggad som **{current_user.first_name} {current_user.last_name}**")
+                    st.info("**ADMINISTRATÖR**")
+                else:
+                    st.success(f"Inloggad som **{current_user.first_name} {current_user.last_name}**")
+                    st.info(f"Roll: {current_user.role.title()}")
+            else:
+                st.warning("Inte inloggad")
+            st.markdown("---")
+        
+        # Visa användarmeny om inloggad
+        if AUTH_AVAILABLE and current_user:
+            render_user_menu(current_user)
         
         # Mode selection
         mode_options = {
@@ -116,6 +184,32 @@ def main():
 def show_main_navigation():
     """Visa huvudnavigation med blog och coaching"""
     st.title("AI-Coachen 🤖🎓")
+    
+    # Header status bar för inloggning och admin
+    if AUTH_AVAILABLE and st.session_state.get('current_user'):
+        current_user = st.session_state.current_user
+        
+        # Skapa en header status bar
+        col_status1, col_status2, col_status3 = st.columns([2, 1, 1])
+        
+        with col_status1:
+            if current_user.is_admin:
+                st.success(f"Inloggad som **{current_user.first_name} {current_user.last_name}** | **ADMINISTRATÖR**")
+            else:
+                st.info(f"Inloggad som **{current_user.first_name} {current_user.last_name}** | {current_user.role.title()}")
+        
+        with col_status2:
+            if current_user.is_admin:
+                if st.button("Admin Dashboard", key="header_admin_btn"):
+                    st.session_state.show_admin_dashboard = True
+                    st.rerun()
+        
+        with col_status3:
+            if st.button("Inställningar", key="header_settings_btn"):
+                st.session_state.show_settings = True
+                st.rerun()
+        
+        st.markdown("---")
     
     # Navigation tabs
     main_tabs = st.tabs(["🏠 Hem", "📰 Blog", "🤖 Starta Coaching"])

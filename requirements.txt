@@ -9,7 +9,15 @@ tiktoken>=0.5.0
 
 # Database support
 psycopg2-binary>=2.9.0  # PostgreSQL adapter för Python
+sqlalchemy>=2.0.0      # ORM för databas-operationer
+
+# Security and Authentication
+bcrypt>=4.0.0          # Säker lösenordshashing
+cryptography>=41.0.0   # Kryptografi för tokens
+email-validator>=2.0.0 # Email validering
+passlib>=1.7.4         # Lösenordshantering
 
 # Additional production dependencies
 watchdog>=3.0.0  # För filövervakning
 packaging>=21.0  # För kompatibilitet
+uuid>=1.30       # För säkra session tokens
