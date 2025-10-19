@@ -259,3 +259,29 @@ Detta projekt är licensierat under MIT License - se [LICENSE](LICENSE) filen f�
 **Byggd med ❤️ för personlig utveckling och AI-transformation inom akademi**
 
 🤖 *"Din intelligenta partner för både personlig tillväxt och organisatorisk AI-adoption"* 🎓
+ 
+ # #   P r o d u c t i o n   L o g i n   T r o u b l e s h o o t i n g   -   L e s s o n s   L e a r n e d   ( O c t   1 9 ,   2 0 2 5 ) 
+ 
+ # # #   P r o b l e m   S o l v e d 
+ * * I s s u e * * :   A d m i n   l o g i n   f a i l e d   o n   p r o d u c t i o n   w i t h   ' L o g i n   f a i l e d '   m e s s a g e 
+ * * R o o t   C a u s e * * :   P o s t g r e S Q L   i n e t   d a t a t y p e   c o u l d n ' t   a c c e p t   ' u n k n o w n '   a s   I P   a d d r e s s 
+ * * S o l u t i o n * * :   C h a n g e d   I P   f a l l b a c k   f r o m   ' u n k n o w n '   t o   ' 1 2 7 . 0 . 0 . 1 '   i n   u i / a u t h _ c o m p o n e n t s . p y 
+ 
+ # # #   K e y   L e s s o n s 
+ 1 .   * * A l w a y s   c h e c k   p r o d u c t i o n   l o g s   f i r s t * *   -   R e n d e r   l o g s   s h o w e d   t h e   r e a l   e r r o r 
+ 2 .   * * E n v i r o n m e n t   s e p a r a t i o n   i s   c r i t i c a l * *   -   L o c a l   S Q L i t e     P r o d u c t i o n   P o s t g r e S Q L     
+ 3 .   * * P o s t g r e S Q L   i s   s t r i c t e r   t h a n   S Q L i t e * *   -   V a l i d a t e s   d a t a   t y p e s   p r o p e r l y 
+ 4 .   * * R e n d e r   d e p l o y s   f r o m   m a i n   b r a n c h * *   -   M u s t   m e r g e   f e a t u r e   b r a n c h e s   p r o p e r l y 
+ 5 .   * * O n e   l i n e   c a n   f i x   e v e r y t h i n g * *   -   S i m p l e   c h a n g e   s o l v e d   e n t i r e   l o g i n   s y s t e m 
+ 
+ # # #   T h e   F i x 
+ ` p y t h o n 
+ #   B E F O R E   ( b r o k e n ) 
+ i p _ a d d r e s s = s t . s e s s i o n _ s t a t e . g e t ( ' c l i e n t _ i p ' ,   ' u n k n o w n ' ) 
+ #   A F T E R   ( w o r k i n g ) 
+ i p _ a d d r e s s = s t . s e s s i o n _ s t a t e . g e t ( ' c l i e n t _ i p ' ,   ' 1 2 7 . 0 . 0 . 1 ' ) 
+ ` 
+ 
+ * * R e s u l t * * :     A d m i n   l o g i n   n o w   w o r k s   o n   h t t p s : / / a i - c o a c h e n . o n r e n d e r . c o m / 
+  
+ 
