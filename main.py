@@ -881,12 +881,20 @@ def show_blog_interface():
     """Visa blog-gränssnitt"""
     st.header("📰 AI-Coaching Blog")
     
-    # Admin-läge för att skapa inlägg (enkel löning)
-    admin_mode = st.sidebar.checkbox("🔧 Admin-läge", help="Aktivera för att skapa och redigera blogginlägg")
+    # Kontrollera om användaren är admin för att visa admin-funktioner
+    current_user = st.session_state.get('current_user')
+    is_admin = current_user and hasattr(current_user, 'is_admin') and current_user.is_admin
     
-    if admin_mode:
-        show_blog_admin()
+    if is_admin:
+        # Admin kan välja mellan admin-läge och publik vy
+        admin_mode = st.sidebar.checkbox("🔧 Admin-läge", help="Aktivera för att skapa och redigera blogginlägg")
+        
+        if admin_mode:
+            show_blog_admin()
+        else:
+            show_blog_public()
     else:
+        # Vanliga användare ser bara publik vy
         show_blog_public()
 
 def show_blog_admin():

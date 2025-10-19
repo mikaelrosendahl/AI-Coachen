@@ -33,10 +33,11 @@ När du startar AI-Coachen första gången och ingen admin finns:
 - Övervaka systemhälsa
 
 **✅ Bloggadministration:**
-- Skapa och redigera blogginlägg *(kommer snart)*
-- Hantera kategorier och taggar *(kommer snart)*
-- Moderera kommentarer *(kommer snart)*
-- Schemalägga publicering *(kommer snart)*
+- Skapa och redigera blogginlägg
+- Hantera kategorier och taggar
+- Publicera och dölj inlägg
+- Sätt utvalda (featured) inlägg
+- AI-assisterad innehållsförbättring
 
 **✅ Säkerhetsövervakning:**
 - Se inloggningsförsök och säkerhetshändelser
@@ -70,12 +71,52 @@ Klicka på "📊 Admin Dashboard" för att komma åt:
 
 **🛠️ Admin-verktyg:**
 - **👥 Användarhantering** - Förfram användare, se alla konton
-- **📝 Blogghantering** - Skapa och hantera blogginlägg *(kommer snart)*
+- **📝 Blogghantering** - Skapa och hantera blogginlägg (tillgängligt via Blog-fliken)
 - **📊 Statistik** - Avancerad systemstatistik *(kommer snart)*
 
 ---
 
-## 👥 **ANVÄNDARHANTERING**
+## � **BLOGGADMINISTRATION**
+
+### **Skapa Blogginlägg**
+
+1. **Gå till Blog-fliken** i huvudnavigeringen
+2. **Aktivera Admin-läge** via checkboxen i sidomenyn (visas bara för admins)
+3. **Klicka på "📝 Skapa Inlägg"-fliken**
+4. **Fyll i formuläret:**
+   - **Titel**: Catchy rubrik för ditt inlägg
+   - **Kategori**: Välj från coaching, ai-tips, personlig-utveckling, etc.
+   - **Taggar**: Kommaseparerade nyckelord
+   - **Sammanfattning**: Kort beskrivning (valfritt)
+   - **Innehåll**: Huvudtexten för inlägget
+
+5. **Välj inställningar:**
+   - ✅ **Publicera direkt** - Gör inlägget synligt på bloggen
+   - ✅ **Utvalt inlägg** - Framhäv inlägget som featured
+   - ✅ **AI-assistance** - Låt AI förbättra innehållet
+
+6. **Klicka "📝 Skapa Inlägg"**
+
+### **Hantera Befintliga Inlägg**
+
+1. **Gå till "📋 Hantera Inlägg"-fliken**
+2. **Se alla inlägg** (även opublicerade utkast)
+3. **För varje inlägg kan du:**
+   - 📢 **Publicera/Dölj** - Toggle publiceringstatus
+   - 🗑️ **Ta bort** - Radera inlägg permanent
+   - Se status, datum och kategorier
+
+### **AI-Assisterad Innehållsförbättring**
+
+När du aktiverar "🤖 AI-assistance" vid skapande:
+- AI analyserar ditt innehåll och titel
+- Förbättrar språk, struktur och flyt
+- Optimerar för läsbarhet och engagement
+- Lägger till relevant kontext baserat på kategori
+
+---
+
+## �👥 **ANVÄNDARHANTERING**
 
 ### **Förfram användare till Admin**
 
@@ -130,14 +171,21 @@ ADD COLUMN role VARCHAR(20) DEFAULT 'user';
 - ✅ **Förfrämning av användare till admin**
 - ✅ **Admin dashboard med verktygsöversikt**
 - ✅ **Säker rollbaserad åtkomst**
+- ✅ **Komplett blogghanteringssystem**
+  - Skapa blogginlägg med AI-assistance
+  - Hantera kategorier och taggar
+  - Publicera/dölj inlägg
+  - Sätt utvalda (featured) inlägg
+  - Sök och filtrera inlägg
 
 ### **Kommande funktioner (v1.1+):**
-- 🔄 **Komplett blogghanteringssystem**
 - 🔄 **Avancerad användarhantering** (inaktivera, radera, etc.)
 - 🔄 **Systemkonfiguration** (inställningar, API-nycklar, etc.)
 - 🔄 **Backup och återställning**
 - 🔄 **Email-notifikationer** till admins
 - 🔄 **Audit log** för alla admin-åtgärder
+- 🔄 **Kommentarssystem** för blogginlägg
+- 🔄 **Schemalagd publicering**
 
 ---
 
